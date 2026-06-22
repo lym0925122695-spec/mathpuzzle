@@ -1,22 +1,139 @@
-// GAS 웹 앱 배포 URL을 이곳에 넣습니다.
-const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzolSYD9hYYsjmr0iefz9Uh1l2rkNtMvL5TOOyd8_iVpjPsnZaLNBTLxnVVLg0PQXWb/exec";
-function submitStudentQuestion() {
-const data = {
-studentId: document.getElementById("studentId").value,
-studentName: document.getElementById("studentName").value,
-category: document.getElementById("category").value, // 등차수열 or 등비수열
-question: document.getElementById("question").value,
-answer: document.getElementById("answer").value
-};
-fetch(GAS_WEB_APP_URL, {
-method: "POST",
-mode: "no-cors", // GAS 리다이렉트 특성에 대응하기 위해 no-cors 설정 가능
-headers: { "Content-Type": "application/json" },
-body: JSON.stringify(data)
-})
-.then(() => {
-alert("성공적으로 문제가 제출되었습니다! 대시보드를 확인하세요.");
-document.getElementById("questionForm").reset();
-})
-.catch(err => console.error("제출 실패:", err));
-}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>수학Ⅰ 낱말 퍼즐 & 문제 제출</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f0f4f8; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 800px; width: 100%; }
+        h1 { color: #1e3a8a; text-align: center; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; }
+        
+        /* 문제 제출 폼 스타일 */
+        .form-section { background-color: #e0f2fe; padding: 20px; border-radius: 8px; margin-top: 30px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #0f172a; }
+        input[type="text"], select, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px; box-sizing: border-box; }
+        button { background-color: #2563eb; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
+        button:hover { background-color: #1d4ed8; }
+        
+        /* 간단한 힌트 영역 스타일 */
+        .hints { display: flex; gap: 20px; margin-top: 20px; font-size: 14px; }
+        .hint-box { flex: 1; background: #f8fafc; padding: 15px; border: 1px solid #e2e8f0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🧩 대수(수학Ⅰ) 낱말 퍼즐 & 활동</h1>
+    
+    <div class="hints">
+        <div class="hint-box">
+            <h3>[가로 열쇠]</h3>
+            <ul>
+                <li><strong>②</strong> 등비수열에서 이웃하는 두 항의 일정한 비율.</li>
+                <li><strong>④</strong> 이웃하는 두 항의 차이가 일정한 수열.</li>
+                <li><strong>⑥</strong> 수열의 합을 나타내는 기호.</li>
+            </ul>
+        </div>
+        <div class="hint-box">
+            <h3>[세로 열쇠]</h3>
+            <ul>
+                <li><strong>①</strong> 첫째항부터 일정한 수를 곱하여 만든 수열.</li>
+                <li><strong>⑧</strong> 수열의 제n항을 n에 대한 식으로 나타낸 것.</li>
+                <li><strong>⑪</strong> 규칙에 따라 나열된 수의 열.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h2 style="color: #0369a1; margin-top: 0;">🚀 실전 활동: 나만의 수열 문제 만들기</h2>
+        <p>주변에서 찾을 수 있는 수열의 규칙을 문제로 만들어 제출하세요!</p>
+        
+        <form id="questionForm">
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex: 1;">
+                    <label>학번</label>
+                    <input type="text" id="studentId" placeholder="예: 20101" required>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>이름</label>
+                    <input type="text" id="studentName" placeholder="홍길동" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>수열 종류</label>
+                <select id="category">
+                    <option value="등차수열">등차수열</option>
+                    <option value="등비수열">등비수열</option>
+                    <option value="기타(피보나치 등)">기타(피보나치 등)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>내가 만든 문제</label>
+                <textarea id="question" rows="3" placeholder="예: 우리 학교 계단은 한 층을 올라갈 때마다 12개씩 있습니다..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>정답 및 해설</label>
+                <input type="text" id="answer" placeholder="예: 공차가 12인 등차수열입니다." required>
+            </div>
+
+            <button type="button" onclick="submitStudentQuestion()">선생님께 문제 제출하기</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // 선생님의 캡처 화면에 있던 GAS 웹 앱 주소를 정확히 넣었습니다.
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzolSYD9hYYsjmr0iefz9Uh1l2rkNtMvL5TOoYd8_iVpjPsnZaLNBTLxnVVLg0PQXWb/exec";
+
+    function submitStudentQuestion() {
+        const studentId = document.getElementById("studentId").value;
+        const studentName = document.getElementById("studentName").value;
+        const question = document.getElementById("question").value;
+        const answer = document.getElementById("answer").value;
+
+        if(!studentId || !studentName || !question || !answer) {
+            alert("빈칸을 모두 입력해주세요!");
+            return;
+        }
+
+        const data = {
+            studentId: studentId,
+            studentName: studentName,
+            category: document.getElementById("category").value,
+            question: question,
+            answer: answer
+        };
+
+        // 제출 버튼 텍스트 변경
+        const btn = document.querySelector("button");
+        btn.innerText = "제출 중...";
+        btn.disabled = true;
+
+        fetch(GAS_WEB_APP_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        })
+        .then(() => {
+            alert("성공적으로 문제가 제출되었습니다! 앞 화면(대시보드)을 확인하세요.");
+            document.getElementById("questionForm").reset();
+            btn.innerText = "선생님께 문제 제출하기";
+            btn.disabled = false;
+        })
+        .catch(err => {
+            console.error("제출 실패:", err);
+            alert("제출에 실패했습니다. 다시 시도해주세요.");
+            btn.innerText = "선생님께 문제 제출하기";
+            btn.disabled = false;
+        });
+    }
+</script>
+
+</body>
+</html>
