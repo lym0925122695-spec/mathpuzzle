@@ -1,0 +1,23 @@
+function fetchDashboardData() {
+fetch(GAS_WEB_APP_URL)
+.then(response => response.json())
+.then(data => {
+const board = document.getElementById("dashboard-board");
+board.innerHTML = ""; // 기존 카드 초기화
+data.forEach(item => {
+const card = document.createElement("div");
+card.className = "post-it-card";
+card.innerHTML = `
+<div class="card-header">${item.studentId} ${item.studentName}</div>
+<div class="card-tag">${item.category}</div>
+<div class="card-body">${item.question}</div>
+<div class="card-footer">정답: ${item.answer}</div>
+`;
+board.appendChild(card);
+});
+})
+.catch(err => console.error("데이터 로드 실패:", err));
+}
+// 5초마다 대시보드를 자동으로 새로고침하여 실시간성 유지
+setInterval(fetchDashboardData, 5000);
+window.onload = fetchDashboardData;

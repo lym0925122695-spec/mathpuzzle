@@ -1,0 +1,22 @@
+// GAS 웹 앱 배포 URL을 이곳에 넣습니다.
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzolSYD9hYYsjmr0iefz9Uh1l2rkNtMvL5TOOyd8_iVpjPsnZaLNBTLxnVVLg0PQXWb/exec";
+function submitStudentQuestion() {
+const data = {
+studentId: document.getElementById("studentId").value,
+studentName: document.getElementById("studentName").value,
+category: document.getElementById("category").value, // 등차수열 or 등비수열
+question: document.getElementById("question").value,
+answer: document.getElementById("answer").value
+};
+fetch(GAS_WEB_APP_URL, {
+method: "POST",
+mode: "no-cors", // GAS 리다이렉트 특성에 대응하기 위해 no-cors 설정 가능
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify(data)
+})
+.then(() => {
+alert("성공적으로 문제가 제출되었습니다! 대시보드를 확인하세요.");
+document.getElementById("questionForm").reset();
+})
+.catch(err => console.error("제출 실패:", err));
+}
